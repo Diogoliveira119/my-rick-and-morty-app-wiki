@@ -70,7 +70,7 @@ function Home({ data }) {
   };
  
   return (
-    <div style={{display:"flex", flexDirection:"column"}}>
+    <div style={{display:"flex", flexDirection:"column", fontFamily: "Helvetica", textDecoration:"none"}}>
       <Head>
         <title>Rick & Morty Wiki</title>
       </Head>
@@ -79,11 +79,11 @@ function Home({ data }) {
       </div>
       <div className='characterList' style={styles.characterList}>
         {data.results.map((result) => (
-          <Link href="/characters/[id]" as={`/characters/${result.id}`}>
-              <div style={{display: "flex", flex: 5, border: "2px solid black", padding: 5, margin: 10, justifyContent:"center"}}>
+          <Link href="/character/[id]" as={`/character/${result.id}`}>
+              <div style={{backgroundColor:"rgba(1, 177, 197, 0.7)",display: "flex", flex: 5, border: "2px solid rgba(1, 177, 197, 1)", borderRadius: 10, padding: 5, margin: 10, justifyContent:"center"}}>
                 <ul style={{display: "flex", flexDirection: "column", flexWrap: "wrap", alignItems:"center", padding: 0}}>
                   <li key={result.id} style={{display: "flex", flexDirection: "column", flexWrap: "wrap", alignItems:"center"}}>
-                    <img src={result.image} alt={result.name} />
+                    <img style={{borderRadius:10}} src={result.image} alt={result.name} />
                     <h2>{result.name}</h2>
                     <h4 style={result.status === 'Alive' ? styles.alive : styles.dead}>{result.status}</h4>
                     <h4 style={result.species === 'Alien' ? styles.alien : styles.normal}>{result.species}</h4>
