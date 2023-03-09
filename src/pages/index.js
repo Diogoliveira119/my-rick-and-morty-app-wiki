@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Link from 'next/link'
-// import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 
 
 
@@ -16,10 +16,12 @@ export async function getServerSideProps(context) {
 
 
 function Home({ data }) {
-  console.log(data);
+  // console.log(data);
+
+  const [char, setChar] = useState(data);
 
   const styles = {
-    mainContent:{
+    mainContent: {
       backgroundColor: 'white'
     },
     title: {
@@ -28,7 +30,7 @@ function Home({ data }) {
       fontWeight: "bold",
       margin: 20,
       fontFamily: "Helvetica",
-      display:"flex",
+      display: "flex",
       justifyContent: "center"
     },
     characterList: {
@@ -38,9 +40,9 @@ function Home({ data }) {
       flexDirection: "row",
       flexWrap: "wrap",
       flex: 1,
-      boxSizing: "border-box"  
+      boxSizing: "border-box"
     },
-    button:{
+    button: {
       backgroundColor: "#01b1c5",
       borderRadius: 6,
       borderWidth: 0,
@@ -53,48 +55,66 @@ function Home({ data }) {
       padding: 5,
       width: "10%",
       cursor: "pointer",
+      display:"flex",
+      justifyContent: "center",
+      alignItems: "center",
     },
     alive: {
-      color:"green"
+      color: "green"
     },
     dead: {
-      color:"red"
+      color: "red"
     },
     alien: {
-      color:"blue"
+      color: "blue"
     },
     normal: {
-      
+
     },
 
   };
- 
+
+  // useEffect(() => console.log(char), [char])
+
+  async function getMoreChars() {
+    console.log("Entrou " + char.info.next);
+    const a = await fetch(char.info.next);
+    const b = await a.json();
+    console.log(b);
+    setChar((char) => ({...char, results: [...char.results, ...b.results], 
+      info: b.info}));
+  }
+
+
   return (
-    <div style={{display:"flex", flexDirection:"column", fontFamily: "Helvetica", textDecoration:"none"}}>
+    <div style={{ display: "flex", flexDirection: "column", fontFamily: "Helvetica", textDecoration: "none" }}>
       <Head>
         <title>Rick & Morty Wiki</title>
       </Head>
       <div className="title" style={styles.title}>
         <h1>Rick & Morty Wiki</h1>
       </div>
+      <div style={{display: 'flex', justifyContent: 'center', marginBottom: 20}} class="container__item">
+        <Link href="/search" style={styles.button}> Search </Link>
+      </div>
       <div className='characterList' style={styles.characterList}>
-        {data.results.map((result) => (
+        {char.results.map((result) => (
           <Link href="/character/[id]" as={`/character/${result.id}`}>
-              <div style={{backgroundColor:"rgba(1, 177, 197, 0.7)",display: "flex", flex: 5, border: "2px solid rgba(1, 177, 197, 1)", borderRadius: 10, padding: 5, margin: 10, justifyContent:"center"}}>
-                <ul style={{display: "flex", flexDirection: "column", flexWrap: "wrap", alignItems:"center", padding: 0}}>
-                  <li key={result.id} style={{display: "flex", flexDirection: "column", flexWrap: "wrap", alignItems:"center"}}>
-                    <img style={{borderRadius:10}} src={result.image} alt={result.name} />
-                    <h2>{result.name}</h2>
-                    <h4 style={result.status === 'Alive' ? styles.alive : styles.dead}>{result.status}</h4>
-                    <h4 style={result.species === 'Alien' ? styles.alien : styles.normal}>{result.species}</h4>
-                  </li>
-                </ul>
-              </div>
+            <div key={result.id} style={{ backgroundColor: "rgba(1, 177, 197, 0.7)", display: "flex", flex: 5, border: "2px solid rgba(1, 177, 197, 1)", borderRadius: 10, padding: 5, margin: 10, justifyContent: "center" }}>
+              <ul style={{ display: "flex", flexDirection: "column", flexWrap: "wrap", alignItems: "center", padding: 0 }}>
+                <li style={{ display: "flex", flexDirection: "column", flexWrap: "wrap", alignItems: "center" }}>
+                  <img style={{ borderRadius: 10, width: "70%" }} src={result.image} alt={result.name} />
+                  <h2>{result.name}</h2>
+                  <h4 style={result.status === 'Alive' ? styles.alive : styles.dead}>{result.status}</h4>
+                  <h4 style={result.species === 'Alien' ? styles.alien : styles.normal}>{result.species}</h4>
+                </li>
+              </ul>
+            </div>
           </Link>
         ))}
       </div>
-      <div style={{display: "flex", justifyContent:"center"}}>
-        <button style={styles.button}> Load More </button>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <button onClick={getMoreChars} style={styles.button}> Load More </button>
       </div>
     </div>
   )
