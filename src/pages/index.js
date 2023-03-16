@@ -1,6 +1,8 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
+import { getSession, signIn, signOut, useSession } from "next-auth/react";
+
 
 
 
@@ -16,6 +18,9 @@ export async function getServerSideProps(context) {
 
 
 function Home({ data }) {
+
+  const { data: session } = useSession()
+
   // console.log(data);
 
   const [char, setChar] = useState(data);
@@ -55,7 +60,24 @@ function Home({ data }) {
       padding: 5,
       width: "10%",
       cursor: "pointer",
-      display:"flex",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    buttonOut: {
+      backgroundColor: "#01b1c5",
+      borderRadius: 6,
+      borderWidth: 0,
+      boxSizing: "border-box",
+      color: "#fff",
+      fontSize: "100%",
+      height: 44,
+      lineHeight: 1.15,
+      margin: 12,
+      padding: 5,
+      width: "10%",
+      cursor: "pointer",
+      display: "flex",
       justifyContent: "center",
       alignItems: "center",
     },
@@ -81,8 +103,10 @@ function Home({ data }) {
     const a = await fetch(char.info.next);
     const b = await a.json();
     console.log(b);
-    setChar((char) => ({...char, results: [...char.results, ...b.results], 
-      info: b.info}));
+    setChar((char) => ({
+      ...char, results: [...char.results, ...b.results],
+      info: b.info
+    }));
   }
 
 
@@ -94,10 +118,24 @@ function Home({ data }) {
       <div className="title" style={styles.title}>
         <h1>Rick & Morty Wiki</h1>
       </div>
-      <div style={{display: 'flex', justifyContent: 'center', marginBottom: 20}} class="container__item">
+      {!session && <div>
+        <form class="login">
+          <h2>Welcome!</h2>
+          <p>Please log in</p>
+          <input type="text" placeholder="User Name" />
+          <input type="password" placeholder="Password" />
+          <input type="submit" value="Log In" />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }} class="links">
+            <button onClick={() => signIn("github")} style={{ height: 50, width: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><img style={{ height: 50, width: 50 }} src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="" /></button>
+            <a href="#">Forgot password</a>
+            <a href="#">Register</a>
+          </div>
+        </form>
+      </div>}
+      {session && <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }} class="container__item">
         <Link href="/search" style={styles.button}> Search </Link>
-      </div>
-      <div className='characterList' style={styles.characterList}>
+      </div>}
+      {session && <div className='characterList' style={styles.characterList}>
         {char.results.map((result) => (
           <Link href="/character/[id]" as={`/character/${result.id}`}>
             <div key={result.id} style={{ backgroundColor: "rgba(1, 177, 197, 0.7)", display: "flex", flex: 5, border: "2px solid rgba(1, 177, 197, 1)", borderRadius: 10, padding: 5, margin: 10, justifyContent: "center" }}>
@@ -112,13 +150,15 @@ function Home({ data }) {
             </div>
           </Link>
         ))}
-      </div>
-      <div style={{ display: "flex", justifyContent: "center" }}>
+      </div>}
+      {session && <div style={{ display: "flex", justifyContent: "center" }}>
         <button onClick={getMoreChars} style={styles.button}> Load More </button>
-      </div>
+        <button onClick={() => signOut()} style={styles.buttonOut}> Logout </button>
+      </div>}
     </div>
   )
 }
+
 
 
 
